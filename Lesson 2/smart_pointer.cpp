@@ -4,7 +4,7 @@
 class StringPointer
 {
 private:
-    std::string    *ptr;
+	std::string    *ptr;
 
 public:
     StringPointer(std::string *Pointer)
