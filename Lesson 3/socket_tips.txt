@@ -8,7 +8,7 @@ Server structure:
 {
 	mainSocket = socket();
 	bind();
-	listen();
+	listen();		// if Unix socket => ignore this function
 	while (true)
 	{
 		new socket; = accept(from mainSocket);

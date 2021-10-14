@@ -11,7 +11,7 @@ int main()
 
 	masterSocket = socket(AF_INET, SOCK_STREAM, 0);
 	sockAddr.sin_family = AF_INET;
-	sockAddr.sin_port = htons(12345);
+	sockAddr.sin_port = htons(1999);
 	sockAddr.sin_addr.s_addr = htonl(INADDR_ANY);	// 0.0.0.0
 	bind(masterSocket, (struct sockaddr *)&sockAddr, sizeof(sockAddr));
 	listen(masterSocket, SOMAXCONN);

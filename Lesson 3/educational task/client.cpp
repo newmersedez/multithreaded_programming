@@ -12,7 +12,7 @@ int main()
 
 	masterSocket = socket(AF_INET, SOCK_STREAM, 0);
 	sockAddr.sin_family = AF_INET;
-	sockAddr.sin_port = htons(12345);
+	sockAddr.sin_port = htons(1999);
 	sockAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);	// 127.0.0.1
 	connect(masterSocket, (const sockaddr *)&(sockAddr), sizeof(sockAddr));
 	send(masterSocket, buffer, 9, MSG_NOSIGNAL);

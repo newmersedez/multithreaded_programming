@@ -1,0 +1,1 @@
+g++ -Wall -Wextra -Werror server.cpp -o server
