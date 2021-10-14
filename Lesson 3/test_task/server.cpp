@@ -17,14 +17,15 @@ int main()
 	listen(masterSocket, SOMAXCONN);
 	while (true)
 	{
-		int slaveSocket = accept(masterSocket, 0, 0);
-		int	buffer[5] = {0, 0, 0, 0, 0};
+		int 	slaveSocket = accept(masterSocket, 0, 0);
+		int		buffer_recv[10] = {0};
+		char	buffer_send[10] = "MSG RECV";
 
-		recv(slaveSocket, buffer, 4, MSG_NOSIGNAL);
-		send(slaveSocket, buffer, 4, MSG_NOSIGNAL);
+		recv(slaveSocket, buffer_recv, 9, MSG_NOSIGNAL);
+		printf("From client = %s\n", (char *)buffer_recv);
+		send(slaveSocket, buffer_send, 9, MSG_NOSIGNAL);
 		shutdown(slaveSocket, SHUT_RDWR);
 		close(slaveSocket);
-		printf("%s\n", (char *)buffer);
 	}
 	return 0;
 }
