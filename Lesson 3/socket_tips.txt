@@ -1,0 +1,79 @@
+/*
+						Server and client setup instruction
+		Useful link - https://www.opennet.ru/docs/RUS/linux_base/node244.html
+
+######################################### Program structures #########################################
+
+Server structure:
+{
+	mainSocket = socket();
+	bind();
+	listen();
+	while (true)
+	{
+		new socket; = accept(from mainSocket);
+		recv()/send() if IPv4 or IPv6 socket and recvfrom()/sendto() if UNIX socket
+		shutdown(socket, flags);
+		close(socket);
+	}
+	shutdown(mainSocket, flags);
+	close(mainSocket);
+}
+
+Client structure:
+{
+	mainSocket = socket();
+	connect();
+	send();
+	recv();
+	shutdown(mainSocket, flags);
+	close(mainSocket)
+}
+
+########################################### Main functions ###########################################
+
+1) int socket(int domain, int type, int protocol)
+		domain: AF_INET(IPv4), AF_INET6(IPv6), AF_UNIX(UNIX sockets);
+		type: SOCK_STREAM(TCP - queue connections), SOCK_DGRAM(UDP - like "paper planes" connections);
+		protocol: set 0 for autochoice.
+
+2) int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
+		sockfd - socket fd;
+		addr - out (struct sockaddr *)&sockaddr_in;
+		addrlen - sizeof(addr).
+
+3) int listen(int sockfd, int backlog)
+		sockfd - socket fd;
+		backlocg - max amount of possible connections.
+
+In while (true):
+Create slave socket to create "queue" of connections, then operate following funcions:
+
+4) int accept(int sockfd, struct sockaddr *restrict addr, socklen_t *restrict addrlen)
+		sockfd - socket fd;
+		second and third parameters are 0.
+
+5) int recv(int s, char * buf, int len, int flags)
+		and
+   int send(int s, char * buf, int len, int flags)
+		s - socket fd;
+		buf - buffer;
+		len - buffer len;
+		flags - funcion flags, required to set MSG_NOSIGNAL.
+
+P.S.: For UNIX socket sendto and recvfrom. The same funcions, but main difference in
+additional arguments  struct sockaddr *from and int *fromlen
+
+Exit from while.
+
+6) int shutdown(int s, int how)
+		s - socket fd;
+		how - flag:
+			0/SHUT_RD - close read;
+			1/SHUT_WR - close write;
+			2/SHUT_RDWR - close read and write.
+
+ 7) int close (int s)
+		s - socket fd.
+
+*/
