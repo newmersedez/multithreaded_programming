@@ -1,0 +1,43 @@
+by newmersedez
+
+Multiplexing is a method by which multiple analog or digital signals are
+combined into one signal over a shared medium.
+
+				Multiplexing methods
+
+1) select
+
+>>> struct fd_set - set of sockets(block of memory with size = 1024
+	=> max socket fd = 1023)
+	disadvantage of this method: C10K and C100K errors
+
+>>> FD_ZERO(&set) - macros which fills struct fields with default values(0)
+
+>>> FD_SET(masterSocket, &set) - macros which set master socket
+	In this cycle we add all slave sockets into out set
+	for (every slave)
+	{
+		FD_SET(slave, &set) - 
+	}
+Then find maximum slave fd so that server knows the boundary
+	int MAX = (...)
+
+>>> select(MAX + 1, &set, NULL, NULL, NULL);
+	1 param - Max size fd + 1
+	2 param - fd which server listening for reading
+	3 param - fd which server listening for writing
+	4 param - error
+	5 param - timeout
+
+	Then:
+	for (every slave)
+	{
+		if (FD_ISSET(slave, &set))
+		{
+			...
+		}
+	}
+	if (FD_ISSET(masterSocket, &set))
+	{
+		accept(...);
+	}

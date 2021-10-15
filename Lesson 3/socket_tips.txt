@@ -1,4 +1,4 @@
-/*
+by newmersedez
 						Server and client setup instruction
 		Useful link - https://www.opennet.ru/docs/RUS/linux_base/node244.html
 
@@ -75,5 +75,3 @@ Exit from while.
 
  7) int close (int s)
 		s - socket fd.
-
-*/
