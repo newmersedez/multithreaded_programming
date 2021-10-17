@@ -1,19 +1,4 @@
-#include <iostream>
-#include <string.h>
-#include <algorithm>
-#include <set>
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <fcntl.h>
-
-static void	terminate(const std::string message)
-{
-	std::cerr << message << std::endl;
-	exit(EXIT_FAILURE);
-}
+#include "messanger.h"
 
 static int	set_nonblock(int fd)
 {
@@ -36,15 +21,15 @@ int main()
 	struct sockaddr_in	sock_addr;
 
 	if ((master_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1)
-		terminate("Failed to create master socket");
+		terminate(std::cerr, SOCKET_CREATE_ERROR, EXIT_FAILURE);
 	sock_addr.sin_family = AF_INET;
 	sock_addr.sin_port = htons(PORT);
 	sock_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	if (bind(master_socket, (struct sockaddr *)&sock_addr, sizeof(sock_addr)) == -1)
-		terminate("Failed to bind socket");
+		terminate(std::cerr, SOCKET_BIND_ERROR, EXIT_FAILURE);
 	set_nonblock(master_socket);
 	if (listen(master_socket, SOMAXCONN) == -1)
-		terminate("Failed to listen socket");
+		terminate(std::cerr, SOCKET_LISTEN_ERROR, EXIT_FAILURE);
 	while (true)
 	{
 		fd_set	set;
@@ -53,10 +38,12 @@ int main()
 		FD_ZERO(&set);
 		FD_SET(master_socket, &set);
 		for (const auto &obj: slave_sockets)
+		{
 			FD_SET(obj, &set);
+		}
 		max_fd = std::max(master_socket,
-			*std::max_element(slave_sockets.begin(),
-			slave_sockets.end()));
+				*std::max_element(slave_sockets.begin(),
+				slave_sockets.end()));
 		select(max_fd + 1, &set, NULL, NULL, NULL);
 		for (const auto& obj: slave_sockets)
 		{
@@ -73,14 +60,16 @@ int main()
 					slave_sockets.erase(obj);
 				}
 				else if (recv_size != 0)
-					send(obj, buffer, recv_size, MSG_NOSIGNAL);
+					for (const auto& obj2: slave_sockets)
+						send(obj2, buffer, recv_size, MSG_NOSIGNAL);
 			}
 		}
 		if (FD_ISSET(master_socket, &set))
 		{
 			int	slave_socket;
 		
-			slave_socket = accept(master_socket, 0, 0);
+			if ((slave_socket = accept(master_socket, 0, 0)) == -1)
+				terminate(std::cerr, SOCKET_ACCEPT_ERROR, EXIT_FAILURE);
 			set_nonblock(slave_socket);
 			slave_sockets.insert(slave_socket);
 		}

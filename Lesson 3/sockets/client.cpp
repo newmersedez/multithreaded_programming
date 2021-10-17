@@ -17,8 +17,8 @@ int main()
 	connect(masterSocket, (const sockaddr *)&(sockAddr), sizeof(sockAddr));
 	send(masterSocket, buffer, 9, MSG_NOSIGNAL);
 	recv(masterSocket, buffer, 9, MSG_NOSIGNAL);
+	printf("From server = %s\n", buffer);
 	shutdown(masterSocket, SHUT_RDWR);
 	close(masterSocket);
-	printf("From server = %s\n", buffer);
 	return 0;
 }

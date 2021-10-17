@@ -7,7 +7,7 @@ combined into one signal over a shared medium.
 
 1) select
 
->>> struct fd_set - set of sockets(block of memory with size = 1024
+>>> struct fd_set - set of sockets(block of memory with size = BUFFER_SIZE
 	=> max socket fd = 1023)
 	disadvantage of this method: C10K and C100K errors
 
@@ -34,10 +34,69 @@ Then find maximum slave fd so that server knows the boundary
 	{
 		if (FD_ISSET(slave, &set))
 		{
-			...
+			//code: slave - read
 		}
 	}
 	if (FD_ISSET(masterSocket, &set))
 	{
-		accept(...);
+		//code: master - accept(...);
 	}
+
+2) poll
+
+struct poll set[POL_SIZE];
+set[0].fd = master_socket;
+set[0].events = POLLIN;
+
+1 + all slaves
+
+poll(set, setsiz, -1);
+for (...)
+{
+	if (set[i].revents & POLLIN)
+	{
+		//code: master - accept, slave - read;
+	}
+}
+
+3) EPoll
+
+int EPoll = epoll_create1(0);
+struct epoll_event	Event;
+
+Event.data.fd = masterSocket;
+Event.events = EPOLIN1;
+epoll_ctl(EPoll, EPOLL_CTL_ADD, masterSocket, &Event);
+while (true)
+{
+	int N = epoll_wait(EPoll, Events, A, -1);
+	for (... N)
+	{
+		if (Events[i].events & EPOLLERR || Events[i].events & EPOLLHUP)
+		{
+			//code: close connection
+		}
+		else if (Events[i].events & EPOLLIN || Events[i].events & EPOLLHUP)
+		{
+			//code: read
+		}
+		else if (Events[i].events & EPOLLOUT || Events[i].events & EPOLLHUP)
+		{
+			//code: write
+		}
+	}
+}
+
+4) KQueue
+
+int KQueue = kqueue();
+struct kevent Kevent;
+bzero(&Event, masterSocket, EVFILL_READ, EV_ADD, 0, 0, 0);
+kevent(KQueue, &Kevent, 1);
+while (true)
+{
+	bzero(&Event, sizeof(Kevent));
+	kevent(KQueue, NULL, 0, &Kevent, 1, NULL);
+	if (KEvent.filter == EVFILT_READ)
+		//code: read
+}
