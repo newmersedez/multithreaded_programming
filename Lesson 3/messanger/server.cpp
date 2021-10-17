@@ -45,23 +45,30 @@ int main()
 				*std::max_element(slave_sockets.begin(),
 				slave_sockets.end()));
 		select(max_fd + 1, &set, NULL, NULL, NULL);
-		for (const auto& obj: slave_sockets)
+		for (auto iter = slave_sockets.begin();
+			iter != slave_sockets.end();
+			iter++)
 		{
-			if (FD_ISSET(obj, &set))
+			if (FD_ISSET(*iter, &set))
 			{
 				int			recv_size;
 				static char	buffer[BUFFER_SIZE];
 
-				recv_size = recv(obj, buffer, BUFFER_SIZE, MSG_NOSIGNAL);
+				recv_size = recv(*iter, buffer, BUFFER_SIZE, MSG_NOSIGNAL);
 				if (recv_size == 0 && errno != EAGAIN)
 				{
-					shutdown(obj, SHUT_RDWR);
-					close(obj);
-					slave_sockets.erase(obj);
+					std::cout << *iter << " socket disconnected" << std::endl;
+					shutdown(*iter, SHUT_RDWR);
+					close(*iter);
+					iter = slave_sockets.erase(iter);
+					if (slave_sockets.size() == 0)
+						terminate(std::cout, GOOD, EXIT_SUCCESS);
 				}
 				else if (recv_size != 0)
-					for (const auto& obj2: slave_sockets)
-						send(obj2, buffer, recv_size, MSG_NOSIGNAL);
+					for (auto iter2 = slave_sockets.begin();
+							iter2 != slave_sockets.end();
+							iter2++)
+						send(*iter2, buffer, recv_size, MSG_NOSIGNAL);
 			}
 		}
 		if (FD_ISSET(master_socket, &set))
@@ -72,6 +79,7 @@ int main()
 				terminate(std::cerr, SOCKET_ACCEPT_ERROR, EXIT_FAILURE);
 			set_nonblock(slave_socket);
 			slave_sockets.insert(slave_socket);
+			std::cout << slave_socket << " socket connected" << std::endl;
 		}
 	}
 	shutdown(master_socket, SHUT_RDWR);

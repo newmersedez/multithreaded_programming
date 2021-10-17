@@ -15,9 +15,11 @@
 # include <sys/socket.h>
 
 # define PORT					12345
-# define BUFFER_SIZE			256
+# define IPv4_SIZE				15
+# define MESSAGE_SIZE			256
+# define BUFFER_SIZE			MESSAGE_SIZE + IPv4_SIZE + 1 
 
-# define SUCCESS_EXIT			"Success exit"
+# define GOOD					"Success exit"
 # define IP_ERROR				"Incorrect ip address"
 # define SOCKET_CREATE_ERROR	"Failed to create socket"
 # define SOCKET_CONNECT_ERROR	"Failed to connect socket"

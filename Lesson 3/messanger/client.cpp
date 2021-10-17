@@ -3,7 +3,6 @@
 int main(int argc, char *argv[])
 {
 	int					masterSocket;
-	char				buffer[BUFFER_SIZE];
 	struct	sockaddr_in	sockAddr;
 
 	if (argc != 2)
@@ -18,12 +17,17 @@ int main(int argc, char *argv[])
 		terminate(std::cerr, SOCKET_CONNECT_ERROR, EXIT_FAILURE);
 	while (true)
 	{
+		char	message[MESSAGE_SIZE];
+		char	buffer[BUFFER_SIZE];
+
 		std::cout << "Type message (type \"Exit\" for disconnect): ";
-		std::cin >> buffer;
-		if (!strcmp(buffer, "Exit"))
+		std::cin >> message;
+		if (!strcmp(message, "Exit"))
 			break ;
-		strcat(buffer, ": ");
+		bzero(buffer, BUFFER_SIZE);
 		strcat(buffer, argv[1]);
+		strcat(buffer, ":");
+		strcat(buffer, message);
 		if (send(masterSocket, buffer, BUFFER_SIZE, MSG_NOSIGNAL) == -1)
 			terminate(std::cerr, SOCKET_SEND_ERROR, EXIT_FAILURE);
 		if (recv(masterSocket, buffer, BUFFER_SIZE, MSG_NOSIGNAL) == -1)
