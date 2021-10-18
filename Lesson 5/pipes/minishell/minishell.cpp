@@ -1,55 +1,62 @@
 #include <iostream>
-#include <stdlib.h>
-#include <stdio.h>
+#include <sstream>
 #include <vector>
 #include <string>
-#include <array>
 
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 #include <fcntl.h>
+#include <stdio.h>
 
 # define FILE_PATH	"/home/dmitry/Work/multithreaded_programming/Lesson 5/pipes/minishell/result.out"
 
-static void parse_args(std::vector<std::string>& command_vec,
-							const std::string& command_line,	
-							std::string delimiter)
+static void parse_args(std::vector<std::string>& args_vec,
+							const std::string& args_line,	
+							std::string delim)
 {
-	auto	start = 0UL;
-	auto	end = command_line.find(delimiter, start);
+	size_t 				i = 0;
+	size_t 				length = args_line.length();
+	std::stringstream	sstream;
 
-	while (end != std::string::npos)
+	while (i < length)
 	{
-		command_vec.push_back(command_line.substr(start, end - start));
-		start = end + delimiter.length();
-		end = command_line.find(delimiter, start);
+		if (delim.find(args_line[i]) == std::string::npos)
+		{
+			while (i < length && delim.find(args_line[i]) == std::string::npos)
+				sstream << args_line[i++];
+			args_vec.push_back(sstream.str());
+			sstream.str("");
+		}
+		else
+			i++;
 	}
-	command_vec.push_back(command_line.substr(start, end));
 }
 
-static void	operate_single_command(const std::string& command)
+static void	operate_single_command(const std::string& arg)
 {
 	int							fout;
 	char						*exec_args[1024];
 	size_t						size = 0;
-	std::vector<std::string>	commands_vec;
+	std::vector<std::string>	args_vec;
 
-	parse_args(commands_vec, command, " ");
-	for (int i = 0; i < commands_vec.size(); i++)
-		exec_args[size++] = strdup(commands_vec[i].c_str());
+	parse_args(args_vec, arg, " ");
+	for (size_t i = 0; i < args_vec.size(); i++)
+		exec_args[size++] = strdup(args_vec[i].c_str());
 	exec_args[size] = NULL;
-	if ((fout = open(FILE_PATH, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)) == -1)
+	if ((fout = open(FILE_PATH, O_RDWR | O_CREAT | O_TRUNC, 0666)) == -1)
 		exit(EXIT_FAILURE);
 	close(STDOUT_FILENO);
 	dup2(fout, STDOUT_FILENO);
-	execv("/bin:/usr/bin", exec_args);
+	execvp(exec_args[0], exec_args);
 	close(fout);
+	while (exec_args[--size])
+		free(exec_args[size]);
 }
 
-static void	operate_multiple_commands(std::vector<std::string>& commands_vec)
+static void	operate_multiple_commands(std::vector<std::string>& args_vec)
 {
 	int		fd[2];
 	int		fout;
@@ -66,7 +73,7 @@ static void	operate_multiple_commands(std::vector<std::string>& commands_vec)
 		dup2(fd[1], fout);
 		close(fd[1]);
 		close(fd[0]);
-		execlp(commands_vec[0].c_str(), commands_vec[0].c_str(), NULL);
+		execlp(args_vec[0].c_str(), args_vec[0].c_str(), NULL);
 	}
 	else
 	{
@@ -74,7 +81,7 @@ static void	operate_multiple_commands(std::vector<std::string>& commands_vec)
 		dup2(fd[0], STDIN_FILENO);
 		close(fd[0]);
 		close(fd[1]);
-		execlp(commands_vec[1].c_str(), commands_vec[1].c_str(), NULL);
+		execlp(args_vec[1].c_str(), args_vec[1].c_str(), NULL);
 	}
 	close(fd[0]);
 	close(fd[1]);
@@ -86,12 +93,10 @@ int main(int argc, char *argv[])
 	std::string					command_line;
 
 	std::getline(std::cin, command_line);
-	parse_args(command_vec, command_line, " | ");
-	for (const auto& obj: command_vec)
-		std::cout << "\"" << obj << "\"" << std::endl;
-	// if (command_vec.size() == 1)
-	// 	operate_single_command(command_vec[0]);
-	// else
-	// 	operate_multiple_commands(command_vec);
+	parse_args(command_vec, command_line, "|");
+	if (command_vec.size() == 1)
+		operate_single_command(command_vec[0]);
+	else if (command_vec.size() > 1)
+		operate_multiple_commands(command_vec);
 	return 0;
 }
