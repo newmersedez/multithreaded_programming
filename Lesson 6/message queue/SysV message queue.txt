@@ -1,0 +1,63 @@
+Message queue
+	1) SysV
+	2) POSIX
+
+Message queue SysV
+	1) create message queue:
+		msgid = msgget(key_t key, int flags), where:
+		- key = ftok( ... ) or key = IPC_PRIVATE
+		- flags = IPC_CREATE
+	
+	2) delete, get stats and set new stats:
+		int msgctl(int msgq, int cmd, struct msgid_ds *data);
+		- cmd = IPC_RMID - deletion
+				IPC_STAT - get statitics
+				IPC_SET - set stats (uid, gid, mode, msg_qbytes)
+
+		struct msgidid_ds
+		{
+			struct ipc_perm
+			{
+				uid_t uid; \ current owner
+				gid_t gid; /
+				uid_r cuid; \ creator
+				gid_t cgid; /
+				mode_t mode; - access rights
+			}	msg_perm; - access rights struct;
+
+			msgqnum_t msg_qnum; - messages count in msg queue
+			msglen_t msg_qbytes; - max size in bytes
+			pid_t msglspid; - last sender pid
+			pid_t msglrpid; - last recipient pid
+			time_t msg_stime; - last send time
+			time_t msg_rtime; - last recieve time
+			time_t msg_ctime; - last control time
+		}
+
+	3) send and recieve message:
+		struct msg
+		{
+			long mtype;
+			char mtext[256];
+		}
+		
+		Send message:
+		int msgsend(int msgq, const void *msgp, size_t msgsize, int flags)
+		- msgq - msgid
+		- msgp - our message
+		- msgsize - size of struct !WITHOUT mtype!
+
+		Get message:
+		int msgrecv(int msgq, void *msgp, size_t mtextsize, long msgtype, int flags)
+		- msgq - msgid
+		- msgp - our message
+		- mtextsize - buffer size
+		- msgtype - message type:
+			- msgtype > 0 - this type
+			- msgtype = 0 - all types
+			- msgtype < 0 - recv message with the smallest type, but exactly <= |msgtype|
+			- flags:
+				- MSG_NOERROR - no error, deprecated
+				- IPC_NOWAIT - nonblock
+
+		
