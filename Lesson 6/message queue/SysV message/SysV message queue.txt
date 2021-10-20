@@ -42,13 +42,13 @@ Message queue SysV
 		}
 		
 		Send message:
-		int msgsend(int msgq, const void *msgp, size_t msgsize, int flags)
+		int msgsnd(int msgq, const void *msgp, size_t msgsize, int flags)
 		- msgq - msgid
 		- msgp - our message
 		- msgsize - size of struct !WITHOUT mtype!
 
 		Get message:
-		int msgrecv(int msgq, void *msgp, size_t mtextsize, long msgtype, int flags)
+		int msgrcv(int msgq, void *msgp, size_t mtextsize, long msgtype, int flags)
 		- msgq - msgid
 		- msgp - our message
 		- mtextsize - buffer size

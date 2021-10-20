@@ -1,0 +1,32 @@
+POSIX messages queue
+
+1) create message queue
+	a) int mq_open(const char *name, int flags);
+	   - name - message id
+	   - flags - O_RDONLY, O_WRONLY, O_RDWR, O_NONBLOCK
+	b) int mq_open(const char *name, int flags, mode_t perms, struct mq_attr *attr)
+	   - name - message id
+	   - flags - O_CREAT, O_EXCL
+	   - perms - access rights
+	   - struct mq_attr
+	   {
+			long mq_flags; - flags;
+			long mq_maxmsg; - max messages count int queue
+			long mq_msgsize - max message size
+			long mq_curmsgs; - current messages count in queue
+		}
+
+2) Delete message queue
+	a) int mq_close(msg_t msgq) - close descryptor
+	b) int mq_unlink(const char *name); - delete message queue
+
+3) Send message
+	int mq_send(int mqd, const char *msg, size_t msgsize, unsigned priority)
+	- priority in [0, 31];
+
+4) recv message
+	int mq_recieve(int mqd, char *msg, size_t msgsize, unsigned *priorityp)
+	- priorityp can be NULL
+
+5) async work of POSIX message queue
+	int mq_notify(int mqd, const struct sigevent *ep)
