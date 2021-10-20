@@ -1,0 +1,40 @@
+							POSIX threads:
+
+1) pthread_create(pthread_t *thread_id, const pthread_addr_t * addr, void *(*start_fcn)(void *), void *arg)
+	This function create one POSIX thread and passes a function to this thread to execute
+
+2) ptherad_join(pthread_t thread, void **refval)
+
+3) ptherad_detach(pthread_t thread)
+
+							Threads types:
+
+1) JOINABLE
+
+	a) pthread_join() --- the terminated new thread waits until the
+		function ptherad_join() is called in the main thread 
+
+	b) ptherad_join() --- we consciously want to wait for the thread to complete
+
+2) DETACHED
+
+	a) pthread_detach --- the thread does not need pthread_join
+
+
+							Thread termination
+						
+1) implicit // неявное
+
+	void	*func(void *arg)
+	{
+		-//-
+		return NULL - IMPLICIT termination
+	}
+
+	NULL ---> void * ---> pthread_join()
+
+2) explicit // явное
+
+	a) void pthread_exit(void *retval);
+
+	b) int pthread_cancel(pthread_t thread)

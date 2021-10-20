@@ -1,0 +1,48 @@
+Mutex - binary semaphore (0 - lock, 1 - unlock);
+
+	1) pthread_mutex_t	m = PTHREAD_MUTEX_INITIALIZER
+		pthread_mutex_init(*mp, *maddrp);
+
+	2) pthread_mutex_destroy(*mp);
+
+	3) pthread_mutex_lock(*mp)
+
+	4) pthread_mutex_trylock(*mp)
+
+	5) pthread_mutex_unlock(*mp)
+
+
+Spin block - mutex in while() until shared resource is free
+
+	pthread_spinlook_t	- type
+
+	1) int ptherad_spin_init(*lock, inp pshared) pshared - PTHREAD_PROCESS_SHARED/PTHREAD_PROCESS_PRIVATE
+
+	2) int pthread_spin_destroy(*lock);
+
+	3) int pthread_spin_lock(*lock);
+
+	4) int pthread_spin_trylock(*lock);
+
+	5) int pthread_spin_unlock(*lock);
+
+Mutex like flock - rwlock
+
+	pthread_rwlock_t - type
+
+	pthread_rwlock_t lock = PTHREAD_RWLOCK_INITIALIZER
+
+	1) int pthread_rw_init
+	
+	2) int pthread_rw_destroy
+	
+	3) int pthread_rwlock_rdlock(*rwlock);
+
+	4) int pthread_rwlock_tryrdlock(*rwlock);
+
+	5) int pthread_rwlock_wrlock(*rwlock);
+
+	6) int pthread_rwlock_trywrlock(*rwlock);
+
+	7) int pthread_rwlock_unlock(*rwlock);
+	

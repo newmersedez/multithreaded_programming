@@ -1,0 +1,74 @@
+C++11 Threading:
+
+	1) thread initilization
+		a) by value
+			void threadFunc(void)
+			{
+				/**/
+			}
+			std::thread t(threadFunc) - parameters only by value
+
+		b) by ref 
+			void threadFunc(int i, double d, std::string s)
+			{
+				/**/
+			}
+			std::thread t(threadFunc, 12, 1.2, "Hello world") - paameters by value
+			std::thread t(threadFunc, std::ref(i), std::ref(d), std::ref(s)) - paameters only by ref
+
+		c) class object
+			class MyFunctor
+			{
+			...
+			public:
+				void operator()() { ... }
+			...
+			}
+			MyFunctor	functor;
+			std::thread t(functor)
+
+		d) lambda function
+			std::thread t([](){ ... })
+
+	2) can make t.join() and t.detach();
+
+	3) can destroy thread t.destroy();
+
+C++11 Mutex:
+
+	1) mutex creation
+		std::mutex m;
+
+	2) mutex lock, trylock and unlock
+		m.lock(), m.trylock() and m.unlock()
+
+	3) unique lock
+		std::mutex m
+		{
+			std::unique_lock<std::mutex> l(m); //implicit lock
+			/* implicit unlock* /
+		}
+
+Conditiional variable
+
+	1) std::conditiional_variable v;
+
+	2) std::conditiional_variable_wait;
+	
+	3) std::conditiional_variable_wait_for;
+	
+	4) std::conditiional_variable_until;
+	
+	6) std::conditiional_variable_notify_one;
+	
+	7) std::conditiional_variable_notify_all;
+
+std::future
+
+	1)
+	bool F(int x)
+	{
+		/* ... */
+	}
+	std::future<bool> fut = std::async(F, 16);
+	bool ref = fut.get();

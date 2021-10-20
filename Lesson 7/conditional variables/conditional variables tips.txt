@@ -1,0 +1,30 @@
+Conditional variables
+
+1) int pthread_cond_init(pthread_cond_t *restrict cond, const pthread_condattr_t *restrict attr);
+	or pthread_cond_t	cond = PTHREAD_COND_INITIALIZER
+	
+	creates conditional variable
+
+2) int pthread_cond_destroy(pthread_cond_t *cond);
+
+	destroy conditional variable
+
+3) int pthread_cond_wait(*cond, *mutex) - waiting
+	int pthread_cond_wait(*cond, *mutex, const struct timespec *restrict uptime) - waiting with timeout
+	start waiting process
+
+4) int	pthread_cond_signal(*cond);
+	stop waiting for one thread:
+
+5) int thread_cond_broadcast(*cond);
+	stop waiting for all threads:
+
+Barriers:
+
+1) int (pthread_barrier_t *br, pthread_barrierattr_t *attr, unsigned count);
+
+2) int pthread_barrier_destroy(pthread_barrier_t *br);
+
+3) int pthread_barrier_wait(*br);
+
+
