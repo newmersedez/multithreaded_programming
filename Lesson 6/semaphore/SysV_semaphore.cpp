@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 #define SEMNUM 16
-#define KEYPATH "/home/dmitry/Work/multithreaded_programming/Lesson 6/semaphore/sem.temp"
+#define KEYPATH "/tmp/sem.temp"
 
 union semnum
 {

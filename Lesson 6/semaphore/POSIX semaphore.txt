@@ -3,7 +3,7 @@ POSIX Semaphore - unnamed and named
 1) Creation of Semaphore
 	
 	sem_t	*sem_open(const char *name, int flags);
-	sem_t	sem_open(const char *name, int flags, mode_t perms, unsigned value);
+	sem_t	*sem_open(const char *name, int flags, mode_t perms, unsigned value);
 
 2) Destroy Semaphore
 	int	sem_close(sem_t *sem);
