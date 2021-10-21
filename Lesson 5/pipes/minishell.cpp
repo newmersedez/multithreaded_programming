@@ -33,17 +33,8 @@ void split(std::vector<std::string>& commands_vec,
 void exec_pipe_command(std::vector<std::string> commands_vec)
 {
 	size_t	argc = 0;
-	for (auto command : commands_vec)
+	for (int i = 1; i < commands_vec.size(); i++)
 	{
-		std::vector<std::string>	exec_vec;
-		size_t						size = 0;
-		char						*exec_array[COMMAND_BUFSIZ];
-	
-		split(exec_vec, command, " ");
-		for (size_t i = 0; i < exec_vec.size(); i++)
-			exec_array[size++] = const_cast<char *>(exec_vec[i].c_str());
-		exec_array[size] = NULL;
-
 		int		fd[2];
 		pid_t	child_pid;
 	
@@ -53,7 +44,7 @@ void exec_pipe_command(std::vector<std::string> commands_vec)
 		if (child_pid == 0)
 		{
 			//right command
-			if (command != *(commands_vec.begin()))
+			if (commands_vec[i] != commands_vec.front())
 			{
 				if (dup2(fd[0], STDIN_FILENO) < 0)
 				{
@@ -62,7 +53,7 @@ void exec_pipe_command(std::vector<std::string> commands_vec)
 				}
 			}
 			//left command
-			if (command != *(commands_vec.end() - 1))
+			if (commands_vec[i] != commands_vec.back())
 			{
 				if (dup2(fd[1], STDOUT_FILENO) < 0)
 				{
@@ -72,7 +63,7 @@ void exec_pipe_command(std::vector<std::string> commands_vec)
 			}
 			close(fd[0]);
 			close(fd[1]);
-			execvp(exec_array[0], exec_array);
+			execlp("/bin/sh", "sh", "-c", commands_vec[i].c_str(), NULL);
 			perror("execvp");
 			exit(1);
 		}
