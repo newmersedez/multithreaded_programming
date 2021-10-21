@@ -1,0 +1,34 @@
+Shared memory
+
+1) Creation
+
+	int shmget(ket_t key, size_t size, int flags)
+	- flags - IPC_CREAT, IPC_PRIVATE
+
+2) Delete, stats
+	
+	int shmctl(int shmid, int cmd, struct shmid_ds *data);
+	- cmd: IPC_RMID, IPC_STAT, IPC_SET
+display
+
+
+	struct shmid_ds
+	{
+		struct ipc_perm	shm_perm;
+		size_t			shm_segsz;
+		pid_t			shm_lpid;
+		pid_t			shm_cpid;
+		shamtt_t		shm_nattch; - count of processes
+		time_t			shm_atime; - last connection time;
+		time_t			shm_dtime; - last disconnection time;
+		time_t			shm_ctime; - last set time;
+	}
+
+3) Connection to shared memory
+
+	void *shmat(int shmid, const void *shmaddr, int flags);
+	- flags: SHM_RDONLY, SHM_WRONLY, SHM_RND, ...
+
+4) Disconnection
+
+	int shmdt(const void *shmaddr);

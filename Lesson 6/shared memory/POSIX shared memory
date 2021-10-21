@@ -1,0 +1,34 @@
+POSIX Shared memory
+
+mmap	\ for files
+munmap	/
+
+1) Creation
+
+	int shm_open(const char *name, int flags, mode_t perms);
+	return descryptor
+
+2) Deletion
+
+	int shm_unlink(const char *name);
+
+3) 
+	ftruncate (int fd, off_t length);
+
+4) File map
+
+	void *mmap(void *addr, size_t len, int prot, int flags, int fd, off_t off)
+	- prot: PROT_NONE, PROT_READ, PROT_WRITE, PROT_EXEC
+	- flags: MAP_SHARED, MAP_PRIVATE
+
+5) File unmap
+
+	void *munmap(void *addr, size_t len);
+
+Algorithm:
+	1. shm_open
+	2. ftruncate
+	3. mmap - display file to shm
+	_______________________________
+	4. munmap - delete file from shm;
+	5. shm_unlink
