@@ -1,0 +1,29 @@
+POSIX Semaphore - unnamed and named
+
+1) Creation of Semaphore
+	
+	sem_t	*sem_open(const char *name, int flags);
+	sem_t	sem_open(const char *name, int flags, mode_t perms, unsigned value);
+
+2) Destroy Semaphore
+	int	sem_close(sem_t *sem);
+	int sem_unlink(const char *name);
+
+3) Operations
+
+	sem_post - increse semaphore value by 1
+	sem_wait - decrese semaphore value by 1. If 0, sem_wait waits sem_post;
+
+4) Additional functions
+	
+	sem_getvalue(sem_t *restrict sem, int *value) - get current value of semaphore
+	sem_trywait() - nonblocking waits
+	sem_timedwait(sem_t *restrict sem, const struct timespec) - wait with timeout
+
+Example (unnamed semaphore):
+
+	sem_t s;
+
+	sem_init(sem_t *sem, int pshared, unsigned value);
+
+	int sem_destroy(s);

@@ -1,0 +1,62 @@
+SysV - array of semaphore
+
+1) Creation of semaphore
+
+	int semget(ket_t key, int nsems, int flags)
+	- key - generate key
+	- nsems - number of semaphores
+	- flags - flags :/
+	return semid;
+
+2) Initialization, deletion, stats and etc
+
+	int semctl(int semid, int semnum, int cmd, union semun arg)
+	- semid - id of semaphore created with semget
+	- semnum - number of semaphore [0, 1, ...]
+	- cmd:
+		IPC_RMID - deletion pf semaphore
+		IPC_STAT - get semaphore stats
+		IPC_SET	 - set custom stats
+		GETNCNT	 - count of processes waiting semaphore increse
+		GETZCNT	 - count of processes waiting zero
+		GETPID	 - pid of the last process that accessed semop
+		GETVAL	 - get value of semaphore;
+		SETVAL	 - set value of semaphore;		// good command
+		GETALL	 - get value of all semaphores
+		SETALL	 - set value for all semaphores
+
+	- union semun - argument of command
+	{
+		int 			val;
+		struct semid_ds	*buf;
+		unsigned short	*array;
+	}	arg;
+
+	struct semid_ds
+	{
+		struct ipc_perm	sem_perm; - earlier in SysV messages
+		unsigned int	sem_nsems;
+		time_t			sem_otime;
+		time_t			sem_ctime;
+	}
+
+	Example:
+		...
+		arg_val = 0; // val in union semnum
+		semctk(semid, 0, SETVAL, arg);
+
+3) Operation with semaphore set
+	
+	int semop(int semid, struct sembuf *sops, size_t nsops);
+	
+	struct sembuf
+	{
+		unsigned short	sem_num;
+		short			sem_op;
+		short			sem_flags;	//IPC_NOWAIT or IPC_UNDO
+	}
+	if sem_op > 0 then semaphore++
+	if sem_op < 0 then semaphore--
+		if semaphore < 0 then semaphore blocks and waits untils process unlock semaphore
+	if sem_op == 0 waits
+	
