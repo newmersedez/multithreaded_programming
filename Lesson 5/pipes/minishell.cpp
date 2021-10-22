@@ -36,7 +36,7 @@ void exec_pipe_command(std::vector<std::string> commands_vec)
 	{
 		int		fd[2];
 		pid_t	child_pid;
-	
+
 		if (pipe(fd) < 0)
 			exit(1);
 		child_pid = fork();
@@ -62,11 +62,6 @@ void exec_pipe_command(std::vector<std::string> commands_vec)
 			close(fd[1]);
 			execlp("/bin/sh", "sh", "-c", commands_vec[i].c_str(), NULL);
 			perror("execvp");
-			exit(1);
-		}
-		else if (child_pid < 0)
-		{
-			perror("fork");
 			exit(1);
 		}
 	}
