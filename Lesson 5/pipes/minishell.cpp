@@ -1,89 +1,87 @@
 #include <iostream>
-#include <sstream>
+#include <stdio.h>
 #include <string>
 #include <vector>
-
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <unistd.h>
-#include <stdio.h>
+#include <sstream>
+#include <iterator>
+#include <algorithm>
 
-#define COMMAND_BUFSIZ	16
+using namespace std;
 
-void split(std::vector<std::string>& commands_vec,
-			const std::string& command, std::string delim)
+int execute_child( const vector<string>& path, int pipe_input = -1 )
 {
-	size_t 				i = 0, length = command.length();
-	std::stringstream	sstream;
-
-	while (i < length)
-	{
-		if (delim.find(command[i]) == std::string::npos)
-		{
-			while (i < length && delim.find(command[i]) == std::string::npos)
-				sstream << command[i++];
-			commands_vec.push_back(sstream.str());
-			sstream.str("");
-		}
-		else
-			i++;
-	}
-}
-
-void exec_pipe_command(std::vector<std::string> commands_vec)
-{
-	size_t	argc = 0;
-	for (int i = 1; i < commands_vec.size(); i++)
-	{
-		int		fd[2];
-		pid_t	child_pid;
+	int pfd[2];
+	pipe( pfd );
 	
-		if (pipe(fd) < 0)
-			exit(1);
-		child_pid = fork();
-		if (child_pid == 0)
-		{
-			//right command
-			if (commands_vec[i] != commands_vec.front())
-			{
-				if (dup2(fd[0], STDIN_FILENO) < 0)
-				{
-					perror("dup2");
-					exit(1);
-				}
-			}
-			//left command
-			if (commands_vec[i] != commands_vec.back())
-			{
-				if (dup2(fd[1], STDOUT_FILENO) < 0)
-				{
-					perror("dup2");
-					exit(1);
-				}
-			}
-			close(fd[0]);
-			close(fd[1]);
-			execlp("/bin/sh", "sh", "-c", commands_vec[i].c_str(), NULL);
-			perror("execvp");
-			exit(1);
+
+	int child_pid = fork();
+	if( !child_pid ) {
+		char*  argv[64];
+		int i = 0;
+		for( ; i < path.size(); i++ ) {
+			argv[i] = const_cast<char*>( path[i].c_str() );
 		}
-		else if (child_pid < 0)
-		{
-			perror("fork");
-			exit(1);
+		argv[i] = 0;
+	
+		if( pipe_input != -1 ) {		
+			close( STDIN_FILENO );
+			dup2( pipe_input, STDIN_FILENO );
+			close( pipe_input );
 		}
-		argc++;
+		close( STDOUT_FILENO );
+		dup2( pfd[1], STDOUT_FILENO );
+		close( pfd[0] );
+		close( pfd[1] );
+		execvp( path[0].c_str(), argv );
+		exit( 0 );
+		return -1;
+	} else {
+		close( pfd[1] );
+		waitpid( child_pid, 0, 0 );
+		return pfd[0];
 	}
 }
 
-int main()
+void out_result( int pipe_input )
 {
-	std::vector<std::string>	commands_vec;
-	std::string					command;
+	char buffer[4096];
+	size_t len = 0;
+	FILE* file = fopen( "/home/box/result.out", "w" );
+	while( (len = read( pipe_input, buffer, sizeof( buffer ) ) ) > 0  ) {
+		size_t len2 = fwrite( buffer, 1, len, file );
+		if( len2 < len ) {
+			printf( "Copy error\n" );
+			return;
+		}
+	}
+}
 
-	std::getline(std::cin, command);
-	split(commands_vec, command, "|");
-	if (commands_vec.size() > 0)
-		exec_pipe_command(commands_vec);
-	return (0);
+int main(int, char** )
+{
+	string input;
+	getline( cin, input );
+
+	int pipe_input = -1;	
+	int pipe_pos = 0;
+	while( pipe_pos != string::npos ) {
+		string command;
+		pipe_pos = input.find( '|' );
+		if( pipe_pos == string::npos ) {
+			command = input;
+		} else {
+			command = input.substr( 0, pipe_pos );
+			input = input.substr( pipe_pos + 1 );
+		}
+		istringstream iss( command );
+		vector<string> commands( istream_iterator<string>{iss},
+					istream_iterator<string>{} );
+		pipe_input = execute_child( commands, pipe_input );
+	}
+	
+	out_result( pipe_input );		
+	close( pipe_input );
+	return 0;
 }
