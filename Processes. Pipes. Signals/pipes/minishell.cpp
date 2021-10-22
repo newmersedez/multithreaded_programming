@@ -46,6 +46,7 @@ static void exec_pipe_command(std::vector<std::string> commands_vec)
 		for (size_t i = 0; i < exec_vec.size(); i++)
 			exec_array[size++] = const_cast<char *>(exec_vec[i].c_str());
 		exec_array[size] = NULL;
+		
 		if (pipe(fd) < 0)
 			{ perror("pipe"), exit(EXIT_FAILURE); }
 		child_pid = fork();
