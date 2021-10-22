@@ -32,39 +32,29 @@ void split(std::vector<std::string>& commands_vec,
 
 void exec_pipe_command(std::vector<std::string> commands_vec)
 {
-	for (int i = 1; i < commands_vec.size(); i++)
-	{
-		int		fd[2];
-		pid_t	child_pid;
+	int		fd[2], status;
+	pid_t	cpid;
 
-		if (pipe(fd) < 0)
-			exit(1);
-		child_pid = fork();
-		if (child_pid == 0)
-		{
-			if (commands_vec[i] != commands_vec.front())
-			{
-				if (dup2(fd[0], STDIN_FILENO) < 0)
-				{
-					perror("dup2");
-					exit(1);
-				}
-			}
-			if (commands_vec[i] != commands_vec.back())
-			{
-				if (dup2(fd[1], STDOUT_FILENO) < 0)
-				{
-					perror("dup2");
-					exit(1);
-				}
-			}
-			close(fd[0]);
-			close(fd[1]);
-			execlp("/bin/sh", "sh", "-c", commands_vec[i].c_str(), NULL);
-			perror("execvp");
-			exit(1);
-		}
+	//left pipe command
+	cpid = fork();
+	if (cpid == 0)
+	{
+		close(fd[0]);
+		dup2(fd[1], STDOUT_FILENO);
+		execlp("/bin/sh", "sh", "-c", commands_vec[0].c_str(), NULL);
 	}
+	//right pipe command
+	cpid = fork();
+	if (cpid == 0)
+	{
+		close(fd[1]);
+		dup2(fd[0], STDIN_FILENO);
+		execlp("/bin/sh", "sh", "-c", commands_vec[1].c_str(), NULL);
+	}
+	close(fd[0]);
+	close(fd[1]);
+	waitpid(-1, &status, 0);
+	waitpid(-1, &status, 0);
 }
 
 int main()
