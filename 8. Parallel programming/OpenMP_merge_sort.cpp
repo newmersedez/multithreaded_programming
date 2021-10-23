@@ -1,6 +1,7 @@
-#include <iostream>
-#include <vector>
 #include <algorithm>
+#include <iostream>
+#include <fstream>
+#include <vector>
 #include <omp.h>
 
 void mergeSort(std::vector<int>& vec, int left, int right)
@@ -25,6 +26,24 @@ void mergeSort(std::vector<int>& vec, int left, int right)
 	}
 }
 
+void fillVec(std::vector<int>& vec, std::string filename)
+{
+	int	temp;
+	std::ifstream	stream;
+
+	stream.open(filename);
+	while (stream >> temp)
+		vec.push_back(temp);
+	stream.close();
+}
+
+void printVec(const std::vector<int>& vec)
+{
+	for (const auto& obj: vec)
+		std::cout << obj << " ";
+	std::cout << std::endl;
+}
+
 void mergeSort(std::vector<int>& vec) 
 {
 	#pragma omp parallel
@@ -34,14 +53,8 @@ void mergeSort(std::vector<int>& vec)
 
 int main(int argc, char *argv[])
 {
-	int					temp;
 	std::vector<int>	vec;
-
-	for (int i = 0; i < 6; i++)
-	{
-		std::cin >> temp;
-		vec.push_back(temp);
-	}
+	fillVec(vec, "dataset_12656_4.txt");
 	mergeSort(vec);
 	for (const auto& obj: vec)
 		std::cout << obj << " ";

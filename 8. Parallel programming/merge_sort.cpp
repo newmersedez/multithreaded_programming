@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <fstream>
 #include <stdlib.h>
 
 void merge(std::vector<int>& vec, int left, int mid, int right)
@@ -43,15 +44,15 @@ void mergeSort(std::vector<int>& vec, int left, int right)
 	merge(vec, left, mid, right);
 }
 
-void fillVec(std::vector<int>& vec, size_t size)
+void fillVec(std::vector<int>& vec, std::string filename)
 {
 	int	temp;
+	std::ifstream	stream;
 
-	for (size_t i = 0; i < size; i++)
-	{
-		std::cin >> temp;
+	stream.open(filename);
+	while (stream >> temp)
 		vec.push_back(temp);
-	}
+	stream.close();
 }
 
 void printVec(const std::vector<int>& vec)
@@ -65,8 +66,8 @@ int main(int argc, char *argv[])
 {
 	std::vector<int>	vec;
 
-	fillVec(vec, 6);
-	mergeSort(vec, 0, 5);
+	fillVec(vec, "dataset_12656_4.txt");
+	mergeSort(vec, 0, vec.size() - 1);
 	printVec(vec);
 	return 0;
 }
