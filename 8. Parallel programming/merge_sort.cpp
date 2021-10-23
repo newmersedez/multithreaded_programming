@@ -2,69 +2,45 @@
 #include <vector>
 #include <stdlib.h>
 
-void merge(std::vector<int>& vec, int l, int m, int r)
+void merge(std::vector<int>& vec, int left, int mid, int right)
 {
-    int i, j, k;
-    int n1 = m - l + 1;
-    int n2 = r - m;
-  
-    /* create temp vecays */
-    std::vector<int>	L(n1);
-	std::vector<int>	R(n2);
-  
-    /* Copy data to temp vecays L[] and R[] */
-    for (i = 0; i < n1; i++)
-        L[i] = vec[l + i];
-    for (j = 0; j < n2; j++)
-        R[j] = vec[m + 1 + j];
-  
-    /* Merge the temp vecays back into vec[l..r]*/
-    i = 0; // Initial index of first subvecay
-    j = 0; // Initial index of second subvecay
-    k = l; // Initial index of merged subvecay
-    while (i < n1 && j < n2) {
-        if (L[i] <= R[j]) {
-            vec[k] = L[i];
-            i++;
-        }
-        else {
-            vec[k] = R[j];
-            j++;
-        }
-        k++;
-    }
-  
-    /* Copy the remaining elements of L[], if there
-    are any */
-    while (i < n1) {
-        vec[k] = L[i];
-        i++;
-        k++;
-    }
-  
-    /* Copy the remaining elements of R[], if there
-    are any */
-    while (j < n2) {
-        vec[k] = R[j];
-        j++;
-        k++;
-    }
-}
-  
-/* l is for left index and r is right index of the
-sub-vecay of vec to be sorted */
-void mergeSort(std::vector<int>& vec, int l, int r)
-{
-    if (l >= r)
-		return ;
-	// Same as (l+r)/2, but avoids overflow for
-	// large l and h
-	int m = (l + r) / 2;
+	int	i, j, k;
+	int	size_left = mid - left + 1;
+	int	size_right = right - mid;
 
-	// Sort first and second halves
-	mergeSort(vec, l, m);
-	mergeSort(vec, m + 1, r);
-	merge(vec, l, m, r);
+	std::vector<int>	vec_left(size_left);
+	std::vector<int>	vec_right(size_right);
+
+	for (i = 0; i < size_left; i++)
+		vec_left[i] = vec[left + i];
+	for (j = 0; j < size_right; j++)
+		vec_right[j] = vec[mid + j + 1];
+	i = 0;
+	j = 0;
+	k = left;
+	while (i < size_left && j < size_right)
+	{
+		if (vec_left[i] <= vec_right[j])
+			vec[k++] = vec_left[i++];
+		else
+			vec[k++] = vec_right[j++];
+	}
+	while (i < size_left)
+		vec[k++] = vec_left[i++];
+	while (j < size_right)
+		vec[k++] = vec_right[j++];
+}
+
+void mergeSort(std::vector<int>& vec, int left, int right)
+{
+	int	mid;
+
+	if (left >= right)
+		return ;
+	mid = (left + right) / 2;
+	mergeSort(vec, left, mid);
+	mergeSort(vec, mid + 1, right);	
+	merge(vec, left, mid, right);
 }
 
 void fillVec(std::vector<int>& vec, size_t size)
